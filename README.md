@@ -1,7 +1,4 @@
 # advr.05.shiny
-<!-- badges: start -->
-[![R-CMD-check](https://github.com/fbec76/advr.05.shiny/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/fbec76/advr.05.shiny/actions/workflows/R-CMD-check.yaml)
-<!-- badges: end -->
 
 STIMA 2025 Repository for the shiny application of Lab05 of 732A94 "Advanced Programming in R" Link to Course Information: https://www.ida.liu.se/~732A94/info/courseinfo.en.shtml
 
@@ -15,8 +12,7 @@ R
 > create_package(".")
 > use_rstudio()
 > use_mit_license()
-> use_github_action("check-standard")
-> use_testthat() 
+> use_github_action("check-standard") 
 ```
 
 ### Update Authors
