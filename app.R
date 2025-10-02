@@ -3,56 +3,75 @@ library(leaflet)
 library(advr.05)
 
 datasets <- list(
-  "World nations (world-2)" = "world-2",
-  "Swedish municipalities (se-8)" = "se-8",
-  "Swedish counties (se-6)" = "se-6",
-  "Swedish historical counties (se-7)" = "se-7",
-  "Norwegian municipalities (no-8)" = "no-8",
-  "Norwegian counties (no-6)" = "no-6",
-  "Danish municipalities (dk-8)" = "dk-8",
-  "Danish counties (dk-6)" = "dk-6",
-  "Finnish municipalities (fi-8)" = "fi-8",
-  "Finnish counties (fi-6)" = "fi-6",
-  "German states (de-4)" = "de-4",
-  "French departments (fr-4)" = "fr-4",
-  "UK counties (gb-4)" = "gb-4"
-  # Add more if the API expands
+  "Finnish municipalities, from 2010" = "fi-8",
+  "Swiss municipalities, from 2010" = "ch-8",
+  "Norwegian municipalities, from 2006" = "no-7",
+  "Norwegian counties, from 1919" = "no-4",
+  "Danish municipalities, from 1970" = "dk-7",
+  "Swedish municipalities, from 1974" = "se-7",
+  "Swedish counties, from 1968" = "se-4",
+  "US states" = "us-4",
+  "Municipalities of Greenland since the home rule" = "gl-7",
+  "Countries of the world" = "world-2"
 )
-
-ui <- fluidPage(
-  titlePanel("Thenmap Historical Boundaries Viewer"),
-  sidebarLayout(
-    sidebarPanel(
-      selectInput("region", "Select Dataset:", choices = datasets),
-      dateInput("date", "Select Date:", value = "1900-01-01")
+ui <- shiny::fluidPage(
+  shiny::titlePanel("Thenmap Historical Boundaries Viewer"),
+  shiny::sidebarLayout(
+    shiny::sidebarPanel(
+      shiny::selectInput("region", "Dataset:",
+                         choices = datasets,
+                         selected = datasets[[length(datasets)]]),
+      shiny::dateInput("date", "Date:", value = as.Date("2025-01-01"))
     ),
-    mainPanel(
-      leafletOutput("map")
+    shiny::mainPanel(
+      leaflet::leafletOutput("map")
     )
   )
 )
 
 server <- function(input, output, session) {
-  output$map <- renderLeaflet({
+
+  output$map <- leaflet::renderLeaflet({
+    leaflet::leaflet() %>% leaflet::addTiles()
+  })
+
+  shiny::observeEvent(list(input$region, input$date), ignoreInit = FALSE, {
     req(input$region, input$date)
 
     geo_data <- tryCatch({
-      tnm_geo(dataset = input$region,
-              date = input$date,
-              geo_type = "geojson")
+      advr.05::tnm_geo(dataset = input$region,
+                       date = input$date,
+                       geo_type = "geojson")
     }, error = function(e) {
-      showNotification(paste("Error fetching data:", e$message), type = "error")
-      return(NULL)
+      shiny::showNotification(paste("Error fetching data:", e$message), type = "error")
+      NULL
     })
+    if (is.null(geo_data)) return()
 
-    if (is.null(geo_data)) return(NULL)
+    gd <- sf::st_transform(geo_data, 4326)  # ensure WGS84
 
-    leaflet() %>%
-      addTiles() %>%
-      addGeoJSON(geo_data)
+    p <- leaflet::leafletProxy("map") %>% leaflet::clearGroup("geo")
+
+    # Choose appropriate layer based on geometry
+    gtypes <- unique(sf::st_geometry_type(gd, by_geometry = TRUE))
+    if (any(grepl("POINT", gtypes))) {
+      p <- p %>% leaflet::addCircleMarkers(data = gd, group = "geo", radius = 4)
+    } else if (any(grepl("LINE", gtypes))) {
+      p <- p %>% leaflet::addPolylines(data = gd, group = "geo", weight = 2)
+    } else {
+      p <- p %>% leaflet::addPolygons(data = gd, group = "geo", weight = 1, fillOpacity = 0.4)
+    }
+
+    bb <- sf::st_bbox(gd)
+
+    coords <- unname(as.numeric(bb[c("xmin", "ymin", "xmax", "ymax")]))
+
+    leaflet::leafletProxy("map") %>%
+      leaflet::fitBounds(lng1 = coords[1], lat1 = coords[2],
+                         lng2 = coords[3], lat2 = coords[4])
   })
 }
 
-shinyApp(ui = ui, server = server)
+shiny::shinyApp(ui = ui, server = server)
 
 
