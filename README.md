@@ -1,5 +1,4 @@
 # advr.05.shiny
-[![R-CMD-check](
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/fbec76/advr.05.shiny/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/fbec76/advr.05.shiny/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
