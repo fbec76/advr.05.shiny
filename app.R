@@ -1,7 +1,3 @@
-library(shiny)
-library(leaflet)
-library(advr.05)
-
 datasets <- list(
   "Finnish municipalities, from 2010" = "fi-8",
   "Swiss municipalities, from 2010" = "ch-8",
