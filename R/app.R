@@ -35,7 +35,7 @@ server <- function(input, output, session) {
   })
 
   shiny::observeEvent(list(input$region, input$date), ignoreInit = FALSE, {
-    req(input$region, input$date)
+    shiny::req(input$region, input$date)
 
     geo_data <- tryCatch({
       advr.05::tnm_geo(dataset = input$region,
@@ -47,23 +47,11 @@ server <- function(input, output, session) {
     })
     if (is.null(geo_data)) return()
 
-    gd <- sf::st_transform(geo_data, 4326)  # ensure WGS84
+    leaflet::leafletProxy("map") %>%
+      leaflet::clearGroup("geo") %>%
+      leaflet::addPolygons(data = geo_data, group = "geo", weight = 1, fillOpacity = 0.4)
 
-    p <- leaflet::leafletProxy("map") %>% leaflet::clearGroup("geo")
-
-    # Choose appropriate layer based on geometry
-    gtypes <- unique(sf::st_geometry_type(gd, by_geometry = TRUE))
-    if (any(grepl("POINT", gtypes))) {
-      p <- p %>% leaflet::addCircleMarkers(data = gd, group = "geo", radius = 4)
-    } else if (any(grepl("LINE", gtypes))) {
-      p <- p %>% leaflet::addPolylines(data = gd, group = "geo", weight = 2)
-    } else {
-      p <- p %>% leaflet::addPolygons(data = gd, group = "geo", weight = 1, fillOpacity = 0.4)
-    }
-
-    bb <- sf::st_bbox(gd)
-
-    coords <- unname(as.numeric(bb[c("xmin", "ymin", "xmax", "ymax")]))
+    coords <- unname(as.numeric(sf::st_bbox(geo_data)[c("xmin", "ymin", "xmax", "ymax")]))
 
     leaflet::leafletProxy("map") %>%
       leaflet::fitBounds(lng1 = coords[1], lat1 = coords[2],

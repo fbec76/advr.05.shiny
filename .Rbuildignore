@@ -1,4 +1,5 @@
 ^.idea$
+^docs$
 ^advr\.05\.shiny\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$

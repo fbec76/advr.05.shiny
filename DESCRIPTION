@@ -1,10 +1,10 @@
 Package: advr.05.shiny
-Title: What the Package Does (One Line, Title Case)
+Title: Thenmap Historical Boundaries Viewer Shiny App
 Version: 0.0.0.9000
 Authors@R: 
     person("Finn", "Beckmann", , "finbe486@student.liu.se", role = c("aut", "cre"))
     person("Max", "Goldbeck-Löwe", , "maxgo900@student.liu.se", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: Shiny App for visualizing historical boundaries from the Thenmap dataset.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
