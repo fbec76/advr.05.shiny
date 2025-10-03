@@ -10,6 +10,9 @@ datasets <- list(
   "Municipalities of Greenland since the home rule" = "gl-7",
   "Countries of the world" = "world-2"
 )
+
+advr.05::tnm_set_config(base_url = "http://api.thenmap.net", version = "v2")
+
 ui <- shiny::fluidPage(
   shiny::titlePanel("Thenmap Historical Boundaries Viewer"),
   shiny::sidebarLayout(
