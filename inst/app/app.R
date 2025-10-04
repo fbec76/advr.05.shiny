@@ -31,7 +31,7 @@ ui <- shiny::fluidPage(
 server <- function(input, output, session) {
 
   output$map <- leaflet::renderLeaflet({
-    leaflet::leaflet() %>% leaflet::addTiles()
+    leaflet::leaflet() |> leaflet::addTiles()
   })
 
   shiny::observeEvent(list(input$region, input$date), ignoreInit = FALSE, {
@@ -47,13 +47,13 @@ server <- function(input, output, session) {
     })
     if (is.null(geo_data)) return()
 
-    leaflet::leafletProxy("map") %>%
-      leaflet::clearGroup("geo") %>%
+    leaflet::leafletProxy("map") |>
+      leaflet::clearGroup("geo") |>
       leaflet::addPolygons(data = geo_data, group = "geo", weight = 1, fillOpacity = 0.4)
 
     coords <- unname(as.numeric(sf::st_bbox(geo_data)[c("xmin", "ymin", "xmax", "ymax")]))
 
-    leaflet::leafletProxy("map") %>%
+    leaflet::leafletProxy("map") |>
       leaflet::fitBounds(lng1 = coords[1], lat1 = coords[2],
                          lng2 = coords[3], lat2 = coords[4])
   })
